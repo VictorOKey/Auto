@@ -7,7 +7,16 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Reflection;
+using Auto.Website.GraphQL.GraphTypes;
+using Auto.Website.GraphQL.Schemas;
+using EasyNetQ;
+using GraphQL.Types;
+using GraphiQl;
+using GraphQL;
 using Microsoft.OpenApi.Models;
+using GraphQL.Server;
+using GraphQL.MicrosoftDI;
+using GraphQL.NewtonsoftJson;
 
 namespace Auto.Website {
     public class Startup {
@@ -19,10 +28,17 @@ namespace Auto.Website {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllersWithViews().AddNewtonsoftJson();
+
             services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
 
+            // services.AddScoped<ISchema, AutoSchema>();
+            // services.AddScoped<ISchema, UserSchema>();
+            // services.AddGraphQL(options => { options.EnableMetrics = true; }).AddSystemTextJson();
+            //
+            
             services.AddSwaggerGen(
                 config => {
                     config.SwaggerDoc("v1", new OpenApiInfo() {
@@ -32,11 +48,23 @@ namespace Auto.Website {
                     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                     config.IncludeXmlComments(xmlPath);
                 });
+            services.AddGraphQL(builder => builder
+                .AddNewtonsoftJson()
+                .AddAutoSchema<AutoSchema>()
+                .AddSchema<AutoSchema>()
+                .AddAutoSchema<UserSchema>()
+                .AddSchema<UserSchema>()
+                .AddGraphTypes(typeof(VehicleGraphType).Assembly)
+            );
+            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
+                app.UseGraphQLAltair();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             } else {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
@@ -46,8 +74,9 @@ namespace Auto.Website {
             app.UseStaticFiles();
             app.UseRouting();
 
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseGraphQL<UserSchema>();
+            app.UseGraphQL<AutoSchema>();
+            
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(
