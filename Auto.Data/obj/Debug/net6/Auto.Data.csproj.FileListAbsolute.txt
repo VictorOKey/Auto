@@ -15,6 +15,3 @@ C:\Users\User\Desktop\AUTO\Auto.Data\obj\Debug\net6\refint\Auto.Data.dll
 C:\Users\User\Desktop\AUTO\Auto.Data\obj\Debug\net6\Auto.Data.pdb
 C:\Users\User\Desktop\AUTO\Auto.Data\obj\Debug\net6\Auto.Data.genruntimeconfig.cache
 C:\Users\User\Desktop\AUTO\Auto.Data\obj\Debug\net6\ref\Auto.Data.dll
-C:\Users\User\Desktop\AUTO\Auto.Data\bin\Debug\net6\System.Reactive.dll
-C:\Users\User\Desktop\AUTO\Auto.Data\bin\Debug\net6\System.Reactive.xml
-C:\Users\User\Desktop\AUTO\Auto.Data\obj\Debug\net6\Auto.Data.csproj.CopyComplete
